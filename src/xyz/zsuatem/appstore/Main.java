@@ -3,6 +3,8 @@ package xyz.zsuatem.appstore;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println();
+
+        GameController gameController = new GameController();
+        gameController.play();
     }
 }

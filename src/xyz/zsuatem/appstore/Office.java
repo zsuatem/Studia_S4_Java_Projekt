@@ -4,9 +4,9 @@ public class Office {
     public final Integer maxNumberOfEmployees;
     public final Double rentalFee;
 
-    public Office(Integer maxNumberOfEmployees, Double rentalFee) {
+    public Office(Integer maxNumberOfEmployees) {
         this.maxNumberOfEmployees = maxNumberOfEmployees;
-        this.rentalFee = rentalFee;
+        this.rentalFee = maxNumberOfEmployees * 250.0;
     }
 
     public Integer getMaxNumberOfEmployees() {

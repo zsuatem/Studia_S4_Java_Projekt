@@ -8,7 +8,7 @@ class SubcontractorTest {
 
     @Test
     public void shouldSaySubcontractorIsNotNull(){
-        Subcontractor subcontractor = new Subcontractor("FirstName", "LastName", SubcontractorType.average);
+        Subcontractor subcontractor = new Subcontractor("FullName", SubcontractorType.average);
         assertNotNull(subcontractor);
     }
 

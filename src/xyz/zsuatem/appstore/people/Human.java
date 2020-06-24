@@ -1,11 +1,13 @@
 package xyz.zsuatem.appstore.people;
 
-public class Human {
-    String firstName;
-    String lastName;
+public abstract class Human {
+    private String fullName;
 
-    public Human(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Human(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 }
