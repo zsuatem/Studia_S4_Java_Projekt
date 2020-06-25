@@ -11,48 +11,17 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class FullFullNameGeneratorFromTxtFile implements FullNameGenerator {
+public class ProjectNameGeneratorFromTxtFile implements ProjectNameGenerator {
 
     @Override
-    public String getRandomFullNameF() {
-        List<String> fNames = readAllLinesFromTxtFile("firstName-f.txt");
-        List<String> lNames = readAllLinesFromTxtFile("lastName.txt");
+    public String getRandomProjectName() {
+        List<String> adjectivesList = readAllLinesFromTxtFile("projectName-adjectives.txt");
+        List<String> nounsList = readAllLinesFromTxtFile("projectName-nouns.txt");
 
-        String fName = fNames.get(generateRandomInt(fNames.size()));
-        String lName = lNames.get(generateRandomInt(lNames.size()));
+        String adjective = adjectivesList.get(generateRandomInt(adjectivesList.size()));
+        String noun = nounsList.get(generateRandomInt(nounsList.size()));
 
-        if (lName.endsWith("ski")) {
-            lName = lName.replace("ski", "ska");
-        } else if (lName.endsWith("cki")) {
-            lName = lName.replace("cki", "cka");
-        } else if (lName.endsWith(("dzki"))) {
-            lName = lName.replace("dzki", "dzka");
-        }
-
-        return fName + " " + lName;
-    }
-
-    @Override
-    public String getRandomFullNameM() {
-        List<String> fNames = readAllLinesFromTxtFile("firstName-m.txt");
-        List<String> lNames = readAllLinesFromTxtFile("lastName.txt");
-
-        String fName = fNames.get(generateRandomInt(fNames.size()));
-        String lName = lNames.get(generateRandomInt(lNames.size()));
-
-        return fName + " " + lName;
-    }
-
-    @Override
-    public String getRandomFullName() {
-        String fullName;
-        if (generateRandomInt(2) == 0) {
-            fullName = getRandomFullNameM();
-        } else {
-            fullName = getRandomFullNameF();
-        }
-
-        return fullName;
+        return (adjective.substring(0, 1).toUpperCase() + adjective.substring(1)) + " " + noun;
     }
 
     private ArrayList<String> readAllLinesFromTxtFile(String fileName) {
@@ -89,5 +58,4 @@ public class FullFullNameGeneratorFromTxtFile implements FullNameGenerator {
     private @NotNull Integer generateRandomInt(Integer maxExcluded) {
         return ThreadLocalRandom.current().nextInt(0, maxExcluded);
     }
-
 }

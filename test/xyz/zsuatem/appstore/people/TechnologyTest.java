@@ -4,37 +4,37 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SkillTest {
+class TechnologyTest {
 
     @Test
     public void shouldSayThatId2IsEqualsDatabaseSkill() {
-        assertEquals(Skill.database, Skill.getById(2));
+        assertEquals(Technology.database, Technology.getById(2));
     }
 
     @Test
     public void shouldSayThatId10IsNull() {
-        assertNull(Skill.getById(10));
+        assertNull(Technology.getById(10));
     }
 
     @Test
     public void shouldSayThat6IsNumberOfSkills() {
-        assertEquals(6, Skill.getNumberOfSkills());
+        assertEquals(6, Technology.getNumberOfSkills());
     }
 
     @Test
     public void shouldSayThat8IsNotNumberOfSkills() {
-        assertNotEquals(8, Skill.getNumberOfSkills());
+        assertNotEquals(8, Technology.getNumberOfSkills());
     }
 
     @Test
     public void shouldSayThatExpectedNameOfDatabaseSkillIsCorrect() {
-        Skill skill = Skill.backend;
-        assertEquals("Back-end", skill.getName());
+        Technology technology = Technology.backend;
+        assertEquals("Back-end", technology.getName());
     }
 
     @Test
     public void shouldSayThatExpectedNameOfDatabaseSkillIsNotCorrect() {
-        Skill skill = Skill.backend;
-        assertNotEquals("Backend", skill.getName());
+        Technology technology = Technology.backend;
+        assertNotEquals("Backend", technology.getName());
     }
 }

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import xyz.zsuatem.appstore.people.Player;
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Interface {
     private static String interactionInfo = "Aby wybrać danę akcję wpisz odpowiadający jej numer i naciśnij Enter.";
@@ -124,7 +125,7 @@ public class Interface {
         Integer inputValue;
 
         clearScreen();
-        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getDate()));
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
         System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), player.getMoney()));
         System.out.println(interactionInfo);
         System.out.println("1. Przeglądaj realizowane projekty");
@@ -135,7 +136,8 @@ public class Interface {
         System.out.println("6. Potestuj");
         System.out.println("7. Szukaj nowych klientów");
         System.out.println("8. Zajmij się księgowością");
-        System.out.println("\t0. Zakończ turę");
+        System.out.println("\t9. Zakończ turę");
+        System.out.println("0. Zamknij grę. (wszystkie postępy zostaną utracone gra na razie nie wspiera zapisów)");
 
         inputValue = readUserInputIntValue(9);
         switch (inputValue) {
@@ -163,9 +165,131 @@ public class Interface {
             case 8:
                 gameController.gameState = GameState.keepAccounts;
                 break;
-            case 0:
+            case 9:
                 gameController.gameState = GameState.finishTurn;
                 break;
+            case 0:
+                gameController.gameState = GameState.exitGame;
+                break;
         }
+    }
+
+    public Integer myProjectsMenu(@NotNull GameController gameController, @NotNull Player player) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), player.getMoney()));
+        System.out.println("Wybierz jeden z projektów, aby dowiedzieć się o nim więcej. Wpisz 0, aby powrócić do poprzedniego menu.");
+        System.out.println(interactionInfo);
+        System.out.println("Realizowane projekty:");
+
+        Integer projectNumber = 1;
+        for (String basicProjectInfo : player.getProjectsList()) {
+            System.out.println(projectNumber + ". " + basicProjectInfo);
+            projectNumber++;
+        }
+
+        inputValue = readUserInputIntValue(projectNumber);
+        if (inputValue == 0) {
+            gameController.gameState = GameState.playerMenu;
+        } else {
+            gameController.gameState = GameState.myProjectInfo;
+        }
+
+        return inputValue - 1;
+    }
+
+    public void myProjectInfo(@NotNull GameController gameController, @NotNull Player player, Integer projectId) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), player.getMoney()));
+        System.out.println("Informacje o projekcie. Aby wrócić do porzedniego menu wpisz 0 i naciśnij Enter.");
+        System.out.println(player.getProjectById(projectId).getProjectInfo());
+
+        System.out.println();
+        if (player.getProjectById(projectId).isReady()) {
+            System.out.println("Ten projekt jest gotowy do oddania!\nCzy chcesz go oddać?");
+            System.out.println("1. Tak");
+            System.out.println("2. Nie");
+        } else {
+            System.out.println("Ten projekt nie jest jeszcze gotowy do oddania. Popracuj jeszcze nad nim.");
+        }
+
+        inputValue = readUserInputIntValue(2);
+        if (inputValue == 1) {
+            System.out.println("\n\nOddano projekt.");
+
+            for (int i = 3; i >= 1; i--) {
+                try {
+                    System.out.println(i + "...");
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        gameController.gameState = GameState.myProjectsMenu;
+    }
+
+    public Integer newProjectsMenu(@NotNull GameController gameController, @NotNull Player player) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), player.getMoney()));
+        System.out.println("Wybierz jeden z projektów, aby dowiedzieć się o nim więcej. Wpisz 0, aby powrócić do poprzedniego menu.");
+        System.out.println(interactionInfo);
+        System.out.println("Lista nowych projektów:");
+
+        Integer projectNumber = 1;
+        for (String basicProjectInfo : gameController.getProjectsList()) {
+            System.out.println(projectNumber + ". " + basicProjectInfo);
+            projectNumber++;
+        }
+
+        inputValue = readUserInputIntValue(projectNumber);
+        if (inputValue == 0) {
+            gameController.gameState = GameState.playerMenu;
+        } else {
+            gameController.gameState = GameState.newProjectInfo;
+        }
+
+        return inputValue - 1;
+    }
+
+    public Integer newProjectInfo(GameController gameController, Player player, Integer projectId) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), player.getMoney()));
+        System.out.println("Informacje o nowym projekcie. Aby wrócić do porzedniego menu wpisz 0 i naciśnij Enter.");
+        System.out.println(gameController.getProjectById(projectId).getProjectInfo());
+
+        System.out.println();
+        System.out.println("Możesz się podjąć realizacji tego projektu!\nCzy chcesz to zrobić?");
+        System.out.println("1. Tak");
+        System.out.println("2. Nie");
+
+        inputValue = readUserInputIntValue(2);
+        if (inputValue == 1) {
+            System.out.println("\n\nPodjąłeś się realizacji nowego projektu! Zostanie on dodany do listy twoich projektów.");
+
+            for (int i = 3; i >= 1; i--) {
+                try {
+                    System.out.println(i + "...");
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        gameController.gameState = GameState.newProjectsMenu;
+        return inputValue;
     }
 }

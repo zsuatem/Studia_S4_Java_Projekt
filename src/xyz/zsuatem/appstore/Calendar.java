@@ -8,6 +8,10 @@ import java.time.format.FormatStyle;
 public class Calendar {
     private LocalDate date = LocalDate.of(2020, 1, 1);
 
+    public LocalDate getDate() {
+        return date;
+    }
+
     public String getFormattedDate() {
         String formattedDate = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
         return formattedDate;

@@ -2,9 +2,9 @@ package xyz.zsuatem.appstore;
 
 public interface FullNameGenerator {
 
-    String getFullNameF();
+    String getRandomFullNameF();
 
-    String getFullNameM();
+    String getRandomFullNameM();
 
-    String getFullName();
+    String getRandomFullName();
 }
