@@ -34,8 +34,8 @@ public enum Technology {
     }
 
     public static Technology getRandomTechnology() {
-        Integer randomSkillId = ThreadLocalRandom.current().nextInt(0, getNumberOfSkills());
-        return getById(randomSkillId);
+        Integer randomTechnologyId = ThreadLocalRandom.current().nextInt(0, getNumberOfSkills());
+        return getById(randomTechnologyId);
     }
 
     public static @NotNull ArrayList<Technology> getRandomTechnologyList(Integer amount) {

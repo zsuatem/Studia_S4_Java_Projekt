@@ -1,29 +1,29 @@
 package xyz.zsuatem.appstore.people;
 
 public enum SubcontractorType {
-    bad(3000.0, 1.2, 1.2),
-    average(5000.0, 1.0, 1.1),
-    good(7000.0, 1.0, 1.0);
+    bad(3000.0, 7, 2),
+    average(5000.0, 8, 1),
+    good(7000.0, 8, 0);
 
     private final Double salary;
-    private final Double timeMultiplier;
-    private final Double errorMultiplier;
+    private final Integer punctuality;
+    private final Integer errors;
 
-    SubcontractorType(Double salary, Double timeMultiplier, Double errorMultiplier) {
+    SubcontractorType(Double salary, Integer punctuality, Integer errors) {
         this.salary = salary;
-        this.timeMultiplier = timeMultiplier;
-        this.errorMultiplier = errorMultiplier;
+        this.punctuality = punctuality;
+        this.errors = errors;
     }
 
     public Double getSalary() {
         return salary;
     }
 
-    public Double getTimeMultiplier() {
-        return timeMultiplier;
+    public Integer getPunctuality() {
+        return punctuality;
     }
 
-    public Double getErrorMultiplier() {
-        return errorMultiplier;
+    public Integer getErrors() {
+        return errors;
     }
 }

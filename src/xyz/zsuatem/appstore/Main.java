@@ -1,7 +1,6 @@
 package xyz.zsuatem.appstore;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 

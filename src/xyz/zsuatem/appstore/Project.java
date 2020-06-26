@@ -2,11 +2,13 @@ package xyz.zsuatem.appstore;
 
 import org.jetbrains.annotations.NotNull;
 import xyz.zsuatem.appstore.people.Client;
+import xyz.zsuatem.appstore.people.Human;
 import xyz.zsuatem.appstore.people.Technology;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,8 @@ public class Project {
     private LocalDate dateOfPayment;
     private LocalDate endDate;
     private Boolean handedIn = false;
+    private Integer quality = 100;
+    private List<Human> employeesHuman = new ArrayList<>();
 
     public Project(@NotNull ProjectType projectType, Integer totalWorkHours) {
         this.projectType = projectType;
@@ -122,10 +126,10 @@ public class Project {
     public String getBasicProjectInfo() {
         if (endDate != null) {
             return "Nazwa: " + projectName + "\n" +
-                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + totalPrice + "\tWykonano: " + currentTotalWorkHours + "/" + totalWorkHours + "h" + "\tData oddania: " + endDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + Interface.decimalFormat.format(totalPrice) + "zł\tWykonano: " + currentTotalWorkHours + "/" + totalWorkHours + "h" + "\tData oddania: " + endDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
         } else {
             return "Nazwa: " + projectName + "\n" +
-                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + totalPrice + "\tLiczba godzin: " + totalWorkHours;
+                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + Interface.decimalFormat.format(totalPrice) + "zł\tLiczba godzin: " + totalWorkHours;
         }
     }
 
@@ -133,8 +137,9 @@ public class Project {
         if (endDate != null) {
             String returnValue;
             returnValue = "Nazwa: " + projectName + "\n" +
-                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + totalPrice + "\n" +
-                    "\tWykonano: " + currentTotalWorkHours + "/" + totalWorkHours + "h" + "\tData oddania: " + endDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)) + "\n";
+                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + Interface.decimalFormat.format(totalPrice) + "zł\n" +
+                    "\tWykonano: " + currentTotalWorkHours + "/" + totalWorkHours + "h" + "\tData oddania: " + endDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)) + "\n" +
+                    "\tJakość kodu: " + quality + "/100.";
 
             returnValue = returnValue.concat("Technologie: \n");
             for (Technology technology : technologies) {
@@ -143,14 +148,14 @@ public class Project {
 
             returnValue = returnValue.concat("Inne informacje:\n\t" +
                     "Data płatnosci: " + dateOfPayment.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)) + "\n\t" +
-                    "Kara umowna za oddanie po terminie: " + contractualPenalty);
+                    "Kara umowna za oddanie po terminie: " + Interface.decimalFormat.format(contractualPenalty));
 
             return returnValue;
 
         } else {
             String returnValue;
             returnValue = "Nazwa: " + projectName + "\n" +
-                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + totalPrice + "\tLiczba godzin: " + totalWorkHours + "\n";
+                    "\tKlient: " + client.getFullName() + "\tPoziom trudności: " + projectType.getName() + "\tWartość: " + Interface.decimalFormat.format(totalPrice) + "\tLiczba godzin: " + totalWorkHours + "\n";
 
             returnValue = returnValue.concat("Technologie: \n");
             for (Technology technology : technologies) {
@@ -158,7 +163,7 @@ public class Project {
             }
 
             returnValue = returnValue.concat("Inne informacje:\n\t" +
-                    "Kara umowna za oddanie po terminie: " + contractualPenalty);
+                    "Kara umowna za oddanie po terminie: " + Interface.decimalFormat.format(contractualPenalty));
 
             return returnValue;
         }
@@ -173,7 +178,29 @@ public class Project {
     }
 
     public void markAsHandedIn() {
+        employeesHuman = null;
         handedIn = true;
+    }
+
+    public void addEmployHumanToProject(Human human) {
+        employeesHuman.add(human);
+    }
+
+    public void removeEmployeeHumanFromProject(Human human) {
+
+        employeesHuman.removeIf(human1 -> human == human1);
+    }
+
+    public List<Human> getEmployeeHumanList() {
+        List<Human> tmpEmployeeHumanList = new ArrayList<>();
+
+        if (employeesHuman != null) {
+            for (Human human : employeesHuman) {
+                tmpEmployeeHumanList.add(human);
+            }
+        }
+
+        return tmpEmployeeHumanList;
     }
 
 }

@@ -6,7 +6,7 @@ public class Office {
 
     public Office(Integer maxNumberOfEmployees) {
         this.maxNumberOfEmployees = maxNumberOfEmployees;
-        this.rentalFee = maxNumberOfEmployees * 250.0;
+        this.rentalFee = maxNumberOfEmployees * 50.0;
     }
 
     public Integer getMaxNumberOfEmployees() {

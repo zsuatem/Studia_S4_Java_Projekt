@@ -19,6 +19,7 @@ public enum GameState {
     //Player - project
     myProjectsMenu,
     myProjectInfo,
+    myProjectInfoEmployees,
     newProjectsMenu,
     newProjectInfo,
 
@@ -27,6 +28,9 @@ public enum GameState {
     employeeInfo,
     newEmployeesMenu,
     newEmployeeInfo,
+
+    //Player - office
+    officeMenu,
 
     //Player - actions
     writeSomeCodeMenu,
