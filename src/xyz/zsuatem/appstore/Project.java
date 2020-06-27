@@ -1,6 +1,10 @@
 package xyz.zsuatem.appstore;
 
 import org.jetbrains.annotations.NotNull;
+import xyz.zsuatem.appstore.generator.FullFullNameGeneratorFromTxtFile;
+import xyz.zsuatem.appstore.generator.FullNameGenerator;
+import xyz.zsuatem.appstore.generator.ProjectNameGenerator;
+import xyz.zsuatem.appstore.generator.ProjectNameGeneratorFromTxtFile;
 import xyz.zsuatem.appstore.people.Client;
 import xyz.zsuatem.appstore.people.Human;
 import xyz.zsuatem.appstore.people.Technology;
@@ -23,6 +27,7 @@ public class Project {
     private final Double contractualPenalty;
     private final Double totalPrice;
     private final ProjectType projectType;
+    private final Human capturedBy;
     private Integer currentTotalWorkHours = 0;
     private Map<Technology, Integer> currentWorkHours;
     private LocalDate dateOfPayment;
@@ -30,8 +35,9 @@ public class Project {
     private Boolean handedIn = false;
     private Integer quality = 100;
     private List<Human> employeesHuman = new ArrayList<>();
-
-    public Project(@NotNull ProjectType projectType, Integer totalWorkHours) {
+    private Boolean playerActivity = false;
+    private Boolean penaltyApplied = false;
+    public Project(@NotNull ProjectType projectType, Integer totalWorkHours, Human capturedBy) {
         this.projectType = projectType;
         this.totalWorkHours = totalWorkHours;
 
@@ -71,10 +77,10 @@ public class Project {
 
         totalPrice = totalWorkHours * 200.0;
         contractualPenalty = totalPrice * 0.15;
+        this.capturedBy = capturedBy;
     }
 
-
-    public Project() {
+    public Project(Human capturedBy) {
         FullNameGenerator fullNameGenerator = new FullFullNameGeneratorFromTxtFile();
         String fullName = fullNameGenerator.getRandomFullName();
 
@@ -112,6 +118,83 @@ public class Project {
 
         totalPrice = totalWorkHours * 200.0;
         contractualPenalty = totalPrice * 0.15;
+        this.capturedBy = capturedBy;
+    }
+
+    public ProjectType getProjectType() {
+        return projectType;
+    }
+
+    public Human getCapturedBy() {
+        return capturedBy;
+    }
+
+    public void setPenaltyAppliedToTrueValue() {
+        this.penaltyApplied = true;
+    }
+
+    public Boolean getPenaltyApplied() {
+        return penaltyApplied;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public Double getContractualPenalty() {
+        return contractualPenalty;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDate getDateOfPayment() {
+        return dateOfPayment;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public Boolean getHandedIn() {
+        return handedIn;
+    }
+
+    public void setHandedIn(Boolean handedIn) {
+        this.handedIn = handedIn;
+    }
+
+    public Integer getTotalWorkHours() {
+        return totalWorkHours;
+    }
+
+    public void increaseCurrentTotalWorkHours(Integer hours) {
+        if (this.currentTotalWorkHours + hours > totalWorkHours) {
+            this.currentTotalWorkHours = 100;
+        } else {
+            this.currentTotalWorkHours += hours;
+        }
+    }
+
+    public Integer getQuality() {
+        return quality;
+    }
+
+    public void increaseQuality(Integer quality) {
+        if (this.quality + quality > 100) {
+            this.quality = 100;
+        } else {
+            this.quality += quality;
+        }
+    }
+
+    public Map<Technology, Integer> getWorkHours() {
+        return workHours;
+    }
+
+    public Map<Technology, Integer> getCurrentWorkHours() {
+        return currentWorkHours;
     }
 
     private @NotNull Integer generateRandomInt(Integer minIncluded, Integer maxIncluded) {
@@ -194,7 +277,7 @@ public class Project {
     public List<Human> getEmployeeHumanList() {
         List<Human> tmpEmployeeHumanList = new ArrayList<>();
 
-        if (employeesHuman != null) {
+        if (employeesHuman.size() > 0) {
             for (Human human : employeesHuman) {
                 tmpEmployeeHumanList.add(human);
             }
@@ -203,4 +286,23 @@ public class Project {
         return tmpEmployeeHumanList;
     }
 
+    public List<Technology> getTechnologies() {
+        return technologies;
+    }
+
+    public void setPlayerActivityToTrue() {
+        this.playerActivity = true;
+    }
+
+    public Boolean getPlayerActivity() {
+        return playerActivity;
+    }
+
+    public Boolean hasEmployees() {
+        if (employeesHuman.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

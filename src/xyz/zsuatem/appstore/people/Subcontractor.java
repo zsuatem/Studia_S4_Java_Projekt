@@ -1,8 +1,8 @@
 package xyz.zsuatem.appstore.people;
 
-import xyz.zsuatem.appstore.FullFullNameGeneratorFromTxtFile;
 import xyz.zsuatem.appstore.Interface;
 import xyz.zsuatem.appstore.Project;
+import xyz.zsuatem.appstore.generator.FullFullNameGeneratorFromTxtFile;
 
 import java.util.ArrayList;
 
@@ -45,5 +45,9 @@ public class Subcontractor extends Human {
         }
 
         return returnValue;
+    }
+
+    public ArrayList<Technology> getTechnologyList() {
+        return technologyList;
     }
 }

@@ -34,10 +34,12 @@ public enum GameState {
 
     //Player - actions
     writeSomeCodeMenu,
-    writeSomeCodeInfo,
     testCodeMenu,
-    testCodeInfo,
     searchForNewClients,
     keepAccounts,
-    finishTurn
+    finishTurn,
+
+    //Other
+    win,
+    loss
 }

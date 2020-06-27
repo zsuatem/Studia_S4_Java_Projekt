@@ -1,4 +1,4 @@
-package xyz.zsuatem.appstore;
+package xyz.zsuatem.appstore.generator;
 
 import org.jetbrains.annotations.NotNull;
 

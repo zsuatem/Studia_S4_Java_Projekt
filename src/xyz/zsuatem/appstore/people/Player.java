@@ -8,7 +8,9 @@ import xyz.zsuatem.appstore.people.employee.Programmer;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Player {
     private final List<Subcontractor> subcontractorList = new ArrayList<>();
@@ -16,8 +18,14 @@ public class Player {
     private List<Employee> employeeList = new ArrayList<>();
     private Office office = null;
     private Double money = 15000.0;
+    private Double moneyEarnedInMonth = 0.0;
     private String playerName;
     private ArrayList<Project> projectsList = new ArrayList<>();
+    private Integer daysToNewClient = 0;
+    private Integer daysToAccounting = 0;
+    private Project project;
+    private ArrayList<Project> oldProjectList = new ArrayList<>();
+    private Map<LocalDate, Double> pendingPayments = new HashMap<>();
 
     public Player(String playerName) {
         this.playerName = playerName;
@@ -32,6 +40,42 @@ public class Player {
         subcontractorList.add(new Subcontractor(SubcontractorType.bad));
     }
 
+    public Double getMoneyEarnedInMonth() {
+        return moneyEarnedInMonth;
+    }
+
+    public void setMoneyEarnedInMonth(Double moneyEarnedInMonth) {
+        this.moneyEarnedInMonth = moneyEarnedInMonth;
+    }
+
+    public Map<LocalDate, Double> getPendingPayments() {
+        return pendingPayments;
+    }
+
+    public void setPendingPayments(LocalDate date, Double pendingPayments) {
+        this.pendingPayments.put(date, pendingPayments);
+    }
+
+    public ArrayList<Project> getOldProjectList() {
+        return oldProjectList;
+    }
+
+    public void setOldProjectList(ArrayList<Project> oldProjectList) {
+        this.oldProjectList = oldProjectList;
+    }
+
+    public ArrayList<Project> getProjectsList() {
+        return projectsList;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
     public Double getMoney() {
         return money;
     }
@@ -40,7 +84,7 @@ public class Player {
         return playerName;
     }
 
-    public List<String> getProjectsList() {
+    public List<String> getProjectsListAsString() {
         ArrayList<String> tmpProjectsList = new ArrayList<>();
 
         for (Project project : projectsList) {
@@ -59,8 +103,11 @@ public class Player {
         projectsList.add(project);
     }
 
+    public List<Employee> getEmployeeList() {
+        return employeeList;
+    }
 
-    public List<String> getEmployeesList() {
+    public List<String> getEmployeesListAsString() {
         ArrayList<String> tmpEmployeesList = new ArrayList<>();
 
         for (Employee employee : employeeList) {
@@ -115,5 +162,56 @@ public class Player {
         }
 
         return tmpSubcontractorList;
+    }
+
+    public void addNextDayToNewClient() {
+        daysToNewClient++;
+    }
+
+    public Boolean isFiveDaysToNewClient() {
+        if (daysToNewClient >= 5) {
+            daysToNewClient = 0;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Integer getDaysToNewClient() {
+        return daysToNewClient;
+    }
+
+    public void addNextDayToAccounting() {
+        daysToAccounting++;
+    }
+
+    public Boolean inTwoDaysToAccounting() {
+        if (daysToAccounting >= 2) {
+            daysToAccounting = 0;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Integer getDaysToAccounting() {
+        return daysToAccounting;
+    }
+
+    public ArrayList<Technology> getTechnologyList() {
+        return technologyList;
+    }
+
+    public Boolean hasEmployees() {
+        if (employeeList.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void moveProjectToOldProjects(Project project) {
+        oldProjectList.add(project);
+        projectsList.removeIf(project1 -> project == project1);
     }
 }

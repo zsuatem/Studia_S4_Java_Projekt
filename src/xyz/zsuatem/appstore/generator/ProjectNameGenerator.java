@@ -1,4 +1,4 @@
-package xyz.zsuatem.appstore;
+package xyz.zsuatem.appstore.generator;
 
 public interface ProjectNameGenerator {
     String getRandomProjectName();

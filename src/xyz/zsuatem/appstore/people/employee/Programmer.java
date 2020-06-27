@@ -14,13 +14,16 @@ public class Programmer extends Employee {
     private final Integer errors;
     private final Integer punctuality;
     private Project project = null;
-
     public Programmer() {
         super(ThreadLocalRandom.current().nextDouble(5000.0, 6000.0));
         errors = ThreadLocalRandom.current().nextInt(0, 10);
         punctuality = ThreadLocalRandom.current().nextInt(4, 8);
 
         technologyList.addAll(Technology.getRandomTechnologyList(maxNumberOfSkills));
+    }
+
+    public ArrayList<Technology> getTechnologyList() {
+        return technologyList;
     }
 
     public Project getProject() {

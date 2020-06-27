@@ -1,6 +1,6 @@
 package xyz.zsuatem.appstore.people.employee;
 
-import xyz.zsuatem.appstore.FullFullNameGeneratorFromTxtFile;
+import xyz.zsuatem.appstore.generator.FullFullNameGeneratorFromTxtFile;
 import xyz.zsuatem.appstore.people.Human;
 
 public abstract class Employee extends Human {

@@ -4,13 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import xyz.zsuatem.appstore.people.Human;
 import xyz.zsuatem.appstore.people.Player;
 import xyz.zsuatem.appstore.people.Subcontractor;
-import xyz.zsuatem.appstore.people.employee.Employee;
 import xyz.zsuatem.appstore.people.employee.Programmer;
+import xyz.zsuatem.appstore.people.employee.Salesman;
+import xyz.zsuatem.appstore.people.employee.Tester;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class Interface {
@@ -140,11 +143,12 @@ public class Interface {
         System.out.println("2. Przeglądaj nowe dostepne projekty");
         System.out.println("3. Zarządzaj pracownikami");
         System.out.println("4. Zatrudnij nowych pracowników");
-        System.out.println("5. Poprogramuj");
-        System.out.println("6. Potestuj");
-        System.out.println("7. Szukaj nowych klientów");
-        System.out.println("8. Zajmij się księgowością");
-        System.out.println("\t9. Zakończ turę");
+        System.out.println("Wybranie jednej z ponższych czynności automatycznie zakończy turę!");
+        System.out.println("5. Przeznacz ten dzień na programowanie");
+        System.out.println("6. Przeznacz ten dzień na testowanie");
+        System.out.println("7. Szukaj nowych klientów: " + player.getDaysToNewClient().intValue() + "/5 dni.");
+        System.out.println("8. Zajmij się księgowością: " + player.getDaysToAccounting().intValue() + "/2 w tym miesiącu.");
+        System.out.println("\t9. Zakończ turę nic nie robiąc");
         System.out.println("0. Zamknij grę. (wszystkie postępy zostaną utracone gra na razie nie wspiera zapisów)");
 
         inputValue = readUserInputIntValue(9);
@@ -193,7 +197,7 @@ public class Interface {
         System.out.println("Realizowane projekty:");
 
         Integer projectNumber = 1;
-        for (String basicProjectInfo : player.getProjectsList()) {
+        for (String basicProjectInfo : player.getProjectsListAsString()) {
             System.out.println(projectNumber + ". " + basicProjectInfo);
             projectNumber++;
         }
@@ -225,8 +229,8 @@ public class Interface {
             if (human instanceof Subcontractor) {
                 System.out.println(employeeNumber + ". " + ((Subcontractor) human).getBasicSubcontractorInfo());
 
-            } else if (human instanceof Employee) {
-                System.out.println(employeeNumber + ". " + ((Employee) human).getBasicEmployeeInfo());
+            } else if (human instanceof xyz.zsuatem.appstore.people.employee.Employee) {
+                System.out.println(employeeNumber + ". " + ((xyz.zsuatem.appstore.people.employee.Employee) human).getBasicEmployeeInfo());
             }
 
             employeeNumber++;
@@ -238,15 +242,18 @@ public class Interface {
 
         System.out.println();
         if (player.getProjectById(projectId).isReady()) {
-            System.out.println("Ten projekt jest gotowy do oddania!\nCzy chcesz go oddać?");
+            System.out.println("Ten projekt jest gotowy do oddania!\nCzy chcesz go oddać?\n" +
+                    "Wykonanie tej czynności automatycznie zakończy turę!!!");
             System.out.println((employeeNumber + 1) + ". Tak");
             System.out.println((employeeNumber + 2) + ". Nie");
+
         } else {
             System.out.println("Ten projekt nie jest jeszcze gotowy do oddania. Popracuj jeszcze nad nim.");
         }
 
         inputValue = readUserInputIntValue((employeeNumber + 2));
         if (inputValue == (employeeNumber + 2)) {
+            player.getProjectById(projectId.intValue()).setHandedIn(true);
             System.out.println("\n\nOddano projekt.");
 
             for (int i = 3; i >= 1; i--) {
@@ -258,7 +265,7 @@ public class Interface {
                 }
             }
 
-            gameController.gameState = GameState.myProjectsMenu;
+            gameController.gameState = GameState.finishTurn;
         } else if (inputValue == employeeNumber) {
             gameController.gameState = GameState.myProjectInfoEmployees;
         } else {
@@ -278,7 +285,8 @@ public class Interface {
 
         System.out.println("\n\nInformacje o pracownikach przypisanych do projektu (dotyczy tylko programistów i podwykonawców)");
         System.out.println("Jeśli pracownik jest już dodany do projektu to podanie jego numeru spowoduje usunięcie go z projektu.\n" +
-                "Jeśli pracownik nie jest przypisany do projektu podanie jego numeru spowoduje przypisanie go do projektu.");
+                "Jeśli pracownik nie jest przypisany do projektu podanie jego numeru spowoduje przypisanie go do projektu.\n" +
+                "UWAGA!!! Na liście nie zobaczysz pracowników jeśli nie znają oni żadnej technologii wymaganej do realizaci projektu!");
         System.out.println("Przypisani pracownicy (dotyczy tylko programistów i podwykonawców): ");
 
         Integer employeeNumber = 1;
@@ -288,7 +296,7 @@ public class Interface {
             employeeNumber++;
         }
 
-        for (Employee employee : player.getProgrammersByProject(player.getProjectById(projectId.intValue()))) {
+        for (xyz.zsuatem.appstore.people.employee.Employee employee : player.getProgrammersByProject(player.getProjectById(projectId.intValue()))) {
             humanMap.put(employeeNumber, employee);
             System.out.println(employeeNumber + ". " + employee.getBasicEmployeeInfo());
             employeeNumber++;
@@ -297,47 +305,59 @@ public class Interface {
         System.out.println("\n\n");
         System.out.println("Pozostali wolni pracownicy (dotyczy tylko programistów i podwykonawców): ");
         for (Subcontractor subcontractor : player.getSubcontractorsByProject(null)) {
-            humanMap.put(employeeNumber, subcontractor);
-            System.out.println(employeeNumber + ". " + subcontractor.getBasicSubcontractorInfo());
-            employeeNumber++;
+            if (!Collections.disjoint(subcontractor.getTechnologyList(), player.getProjectById(projectId.intValue()).getTechnologies())) {
+                humanMap.put(employeeNumber, subcontractor);
+                System.out.println(employeeNumber + ". " + subcontractor.getBasicSubcontractorInfo());
+                employeeNumber++;
+            }
         }
 
-        for (Employee employee : player.getProgrammersByProject(null)) {
-            humanMap.put(employeeNumber, employee);
-            System.out.println(employeeNumber + ". " + employee.getBasicEmployeeInfo());
-            employeeNumber++;
+        for (xyz.zsuatem.appstore.people.employee.Employee employee : player.getProgrammersByProject(null)) {
+            if (!Collections.disjoint(((Programmer) employee).getTechnologyList(), player.getProjectById(projectId.intValue()).getTechnologies())) {
+                humanMap.put(employeeNumber, employee);
+                System.out.println(employeeNumber + ". " + employee.getBasicEmployeeInfo());
+                employeeNumber++;
+            }
         }
 
         inputValue = readUserInputIntValue(employeeNumber - 1);
-        System.out.println("\n\nZmienianie przypisania pracownika.");
 
-        if (humanMap.get(inputValue.intValue()) instanceof Subcontractor) {
-            if (((Subcontractor) humanMap.get(inputValue.intValue())).getProject() != null) {
-                ((Subcontractor) humanMap.get(inputValue.intValue())).setProject(null);
-                player.getProjectById(projectId.intValue()).removeEmployeeHumanFromProject(((Subcontractor) humanMap.get(employeeNumber.intValue())));
-            } else {
-                ((Subcontractor) humanMap.get(inputValue.intValue())).setProject(player.getProjectById(projectId.intValue()));
-                player.getProjectById(projectId.intValue()).addEmployHumanToProject(((Subcontractor) humanMap.get(employeeNumber.intValue())));
+        if (inputValue != 0) {
+            System.out.println("\n\nZmienianie przypisania pracownika.");
+
+            if (humanMap.get(inputValue.intValue()) instanceof Subcontractor) {
+                if (((Subcontractor) humanMap.get(inputValue.intValue())).getProject() != null) {
+                    ((Subcontractor) humanMap.get(inputValue.intValue())).setProject(null);
+                    player.getProjectById(projectId.intValue()).removeEmployeeHumanFromProject(((Subcontractor) humanMap.get(inputValue.intValue())));
+                } else {
+                    ((Subcontractor) humanMap.get(inputValue.intValue())).setProject(player.getProjectById(projectId.intValue()));
+                    player.getProjectById(projectId.intValue()).addEmployHumanToProject(((Subcontractor) humanMap.get(inputValue.intValue())));
+                }
+
+            } else if (humanMap.get(inputValue.intValue()) instanceof Programmer) {
+                if (((Programmer) humanMap.get(inputValue.intValue())).getProject() != null) {
+                    ((Programmer) humanMap.get(inputValue.intValue())).setProject(null);
+                    player.getProjectById(projectId.intValue()).removeEmployeeHumanFromProject(((Programmer) humanMap.get(inputValue.intValue())));
+                } else {
+                    ((Programmer) humanMap.get(inputValue.intValue())).setProject(player.getProjectById(projectId.intValue()));
+                    player.getProjectById(projectId.intValue()).addEmployHumanToProject(((Programmer) humanMap.get(inputValue.intValue())));
+                }
             }
 
-        } else if (humanMap.get(inputValue.intValue()) instanceof Programmer) {
-            if (((Programmer) humanMap.get(inputValue.intValue())).getProject() != null) {
-                ((Programmer) humanMap.get(inputValue.intValue())).setProject(null);
-                player.getProjectById(projectId.intValue()).removeEmployeeHumanFromProject(((Programmer) humanMap.get(employeeNumber.intValue())));
-            } else {
-                ((Programmer) humanMap.get(inputValue.intValue())).setProject(player.getProjectById(projectId.intValue()));
-                player.getProjectById(projectId.intValue()).addEmployHumanToProject(((Programmer) humanMap.get(employeeNumber.intValue())));
+            for (int i = 3; i >= 1; i--) {
+                try {
+                    System.out.println(i + "...");
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+
+            gameController.gameState = GameState.myProjectInfoEmployees;
+        } else {
+            gameController.gameState = GameState.myProjectInfo;
         }
 
-        for (int i = 3; i >= 1; i--) {
-            try {
-                System.out.println(i + "...");
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
 
     }
 
@@ -377,7 +397,8 @@ public class Interface {
         System.out.println(gameController.getProjectById(projectId).getProjectInfo());
 
         System.out.println();
-        System.out.println("Możesz się podjąć realizacji tego projektu!\nCzy chcesz to zrobić?");
+        System.out.println("Możesz się podjąć realizacji tego projektu!\nCzy chcesz to zrobić?\n" +
+                "Wykonanie tej czynności automatycznie zakończy turę!!!");
         System.out.println("1. Tak");
         System.out.println("2. Nie");
 
@@ -393,6 +414,8 @@ public class Interface {
                     e.printStackTrace();
                 }
             }
+            gameController.gameState = GameState.finishTurn;
+            return inputValue;
         }
 
         gameController.gameState = GameState.newProjectsMenu;
@@ -410,7 +433,7 @@ public class Interface {
         System.out.println("Lista pracowników:");
 
         Integer employeeNumber = 1;
-        for (String basicEmployeeInfo : player.getEmployeesList()) {
+        for (String basicEmployeeInfo : player.getEmployeesListAsString()) {
             System.out.println(employeeNumber + ". " + basicEmployeeInfo);
             employeeNumber++;
         }
@@ -435,7 +458,8 @@ public class Interface {
         System.out.println(player.getEmployeeById(employeeId).getEmployeeInfo());
 
         System.out.println();
-        System.out.println("Możesz zwolnić tego pracownika!\nPamiętaj, że zwolnienie pracownika kosztuje i wynosi 20% pensji.\nCzy chcesz zwolnić ta osobę?");
+        System.out.println("Możesz zwolnić tego pracownika!\nPamiętaj, że zwolnienie pracownika kosztuje i wynosi 20% pensji.\nCzy chcesz zwolnić ta osobę?\n" +
+                "Wykonanie tej czynności automatycznie zakończy turę!!!");
         System.out.println("1. Tak");
         System.out.println("2. Nie");
 
@@ -443,6 +467,17 @@ public class Interface {
         inputValue = readUserInputIntValue(2);
         if (inputValue == 1) {
             System.out.println("\n\nZwalniam pracownika...");
+
+            if (player.getEmployeeById(employeeId) instanceof Programmer) {
+                for (Project project : player.getProjectsList()) {
+                    for (Human human : project.getEmployeeHumanList()) {
+                        if (player.getEmployeeById(employeeId) == ((Programmer) human)) {
+                            project.removeEmployeeHumanFromProject(human);
+                        }
+                    }
+                }
+            }
+
             player.dismissEmployee(employeeId);
 
             for (int i = 3; i >= 1; i--) {
@@ -453,9 +488,10 @@ public class Interface {
                     e.printStackTrace();
                 }
             }
+            gameController.gameState = GameState.finishTurn;
+        } else {
+            gameController.gameState = GameState.employeesMenu;
         }
-
-        gameController.gameState = GameState.employeesMenu;
     }
 
     public Integer newEmployeeMenu(@NotNull GameController gameController, @NotNull Player player) {
@@ -474,9 +510,28 @@ public class Interface {
             employeeNumber++;
         }
 
+        System.out.println("\n\n");
+        System.out.println("Brak ciekawych pracowników? Ogłoś, ze poszukujesz pracowników! (koszt 500zł dodaje jednego nowego pracownika)");
+        System.out.println(employeeNumber + ". Podaj tą wartość aby wyszukać nowego pracownika!");
+
         inputValue = readUserInputIntValue(employeeNumber);
         if (inputValue == 0) {
             gameController.gameState = GameState.playerMenu;
+        } else if (inputValue == employeeNumber) {
+            Integer employeeType = ThreadLocalRandom.current().nextInt(1, 3);
+
+            switch (employeeType) {
+                case 1:
+                    gameController.employees.add(new Programmer());
+                    break;
+                case 2:
+                    gameController.employees.add(new Tester());
+                    break;
+                case 3:
+                    gameController.employees.add(new Salesman());
+                    break;
+            }
+            gameController.gameState = GameState.employeesMenu;
         } else {
             gameController.gameState = GameState.newEmployeeInfo;
         }
@@ -494,7 +549,8 @@ public class Interface {
         System.out.println(gameController.getEmployeeById(employeeId).getEmployeeInfo());
 
         System.out.println();
-        System.out.println("Możesz zatrudnić tego pracownika!\nPamiętaj, że zatrudnienie pracownika kosztuje i wynosi 20% pensji.\nCzy chcesz zatrudnić tą osobę?");
+        System.out.println("Możesz zatrudnić tego pracownika!\nPamiętaj, że zatrudnienie pracownika kosztuje i wynosi 20% pensji.\nCzy chcesz zatrudnić tą osobę?\n" +
+                "Wykonanie tej czynności automatycznie zakończy turę!!!");
         System.out.println("1. Tak");
         System.out.println("2. Nie");
 
@@ -510,9 +566,97 @@ public class Interface {
                     e.printStackTrace();
                 }
             }
+            gameController.gameState = GameState.finishTurn;
+            return inputValue;
+        } else {
+            gameController.gameState = GameState.newEmployeesMenu;
+            return inputValue;
+        }
+    }
+
+    public GameState writeSomeCodeMenu(@NotNull GameController gameController, @NotNull Player player) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), decimalFormat.format(player.getMoney())));
+        System.out.println("Czasami trzeba trochę poprogramować. Aby wrócić do porzedniego menu wpisz 0 i naciśnij Enter.");
+        System.out.println("Wybierz projekt, nad którym chcesz dzisiaj pracować. Wybranie projektu automatycznie zakończy turę!");
+
+        Integer projectNumber = 1;
+        Integer tmpProjectId = 0;
+        for (String basicProjectInfo : player.getProjectsListAsString()) {
+            if (Collections.disjoint(player.getTechnologyList(), player.getProjectById(tmpProjectId.intValue()).getTechnologies())) {
+                System.out.println(projectNumber + ". " + basicProjectInfo);
+                projectNumber++;
+                tmpProjectId++;
+            }
         }
 
-        gameController.gameState = GameState.newEmployeesMenu;
-        return inputValue;
+        inputValue = readUserInputIntValue(projectNumber);
+        if (inputValue == 0) {
+            gameController.gameState = GameState.playerMenu;
+            return null;
+        } else {
+            player.setProject(player.getProjectById(inputValue.intValue()));
+            gameController.gameState = GameState.finishTurn;
+            return GameState.writeSomeCodeMenu;
+        }
+    }
+
+    public GameState testCodeMenu(@NotNull GameController gameController, @NotNull Player player) {
+        Integer inputValue;
+
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), decimalFormat.format(player.getMoney())));
+        System.out.println("Czasami trzeba trochę potestować. Aby wrócić do porzedniego menu wpisz 0 i naciśnij Enter.");
+        System.out.println("Wybierz projekt, nad którym chcesz dzisiaj pracować. Wybranie projektu automatycznie zakończy turę!");
+
+        Integer projectNumber = 1;
+        for (String basicProjectInfo : player.getProjectsListAsString()) {
+            System.out.println(projectNumber + ". " + basicProjectInfo);
+            projectNumber++;
+        }
+
+        inputValue = readUserInputIntValue(projectNumber);
+        if (inputValue == 0) {
+            gameController.gameState = GameState.playerMenu;
+            return null;
+        } else {
+            player.setProject(player.getProjectById(inputValue.intValue()));
+            gameController.gameState = GameState.finishTurn;
+            return GameState.testCodeMenu;
+        }
+    }
+
+    public void win(@NotNull GameController gameController, @NotNull Player player) {
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), decimalFormat.format(player.getMoney())));
+        System.out.println();
+        System.out.println("Wygrałeś! ;)");
+        System.out.println();
+
+        if (gameController.getNumberOfPlayers() > 1) {
+            System.out.println("Grasz w trybie wielosobowym! Za chwilę zacznie się tura kolejnego gracza a Ty możesz już sobie odpocząć ;)");
+        } else {
+            exitGame();
+        }
+    }
+
+    public void lose(@NotNull GameController gameController, @NotNull Player player) {
+        clearScreen();
+        System.out.println(String.format("Dzisiaj jest:\t\t\t%s", gameController.getFormattedDate()));
+        System.out.println(String.format("Gracz: %s\t\t\tPosiada na koncie: %s zł", player.getPlayerName(), decimalFormat.format(player.getMoney())));
+        System.out.println();
+        System.out.println("Przegrałeś! ;(");
+        System.out.println();
+
+        if (gameController.getNumberOfPlayers() > 1) {
+            System.out.println("Grasz w trybie wielosobowym! Za chwilę zacznie się tura kolejnego gracza a Ty możesz już sobie odpocząć albo pracować strategię na nowa grę;)");
+        } else {
+            exitGame();
+        }
     }
 }

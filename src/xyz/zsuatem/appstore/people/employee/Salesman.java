@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Salesman extends Employee {
 
-    Integer days;
+    private Integer days;
 
     public Salesman() {
         super(ThreadLocalRandom.current().nextDouble(3000.0, 4000.0));
