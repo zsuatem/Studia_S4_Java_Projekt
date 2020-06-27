@@ -1,4 +1,4 @@
-#Studia_S4_Java_Projekt
+# Studia_S4_Java_Projekt
 
 Projekt "gry" na programowanie w Javie.
 
